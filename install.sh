@@ -57,25 +57,36 @@ done
 if [[ -f "$REPO_DIR/packages.txt" ]]; then
     echo "Installing packages from packages.txt..."
 
+    # Ensure yay is installed
+    if ! command -v yay &>/dev/null; then
+        echo "yay not found. Installing yay..."
+        cd /tmp
+        git clone https://aur.archlinux.org/yay.git
+        cd yay
+        makepkg -si --noconfirm
+        cd "$REPO_DIR"
+        echo "✓ yay installed"
+    fi
+
     # Extract package names (first column from pacman -Q output)
     packages=$(cut -d' ' -f1 "$REPO_DIR/packages.txt")
 
     # Count missing packages
-    missing=0
+    missing_list=()
     for pkg in $packages; do
         if ! pacman -Q "$pkg" &>/dev/null; then
-            ((missing++))
+            missing_list+=("$pkg")
         fi
     done
 
-    if [[ $missing -gt 0 ]]; then
-        echo "Found $missing missing packages. Installing..."
-        # Use yay if available, otherwise pacman
-        if command -v yay &>/dev/null; then
-            yay -S --noconfirm $(echo "$packages" | tr '\n' ' ')
-        else
-            sudo pacman -S --noconfirm $(echo "$packages" | tr '\n' ' ')
-        fi
+    if [[ ${#missing_list[@]} -gt 0 ]]; then
+        echo "Found ${#missing_list[@]} missing packages. Installing..."
+        # Install in batches to avoid command line length limits
+        batch_size=50
+        for ((i=0; i<${#missing_list[@]}; i+=batch_size)); do
+            batch=("${missing_list[@]:$i:$batch_size}")
+            yay -S --noconfirm "${batch[@]}"
+        done
         echo "✓ Packages installed"
     else
         echo "✓ All packages already installed"
