@@ -3,8 +3,15 @@ set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$HOME/.config.backup.$(date +%s)"
+LOG_FILE="$REPO_DIR/install.log"
+
+exec > >(tee -a "$LOG_FILE")
+exec 2>&1
 
 echo "=== Arch Dotfiles Sync Setup ==="
+echo "Log file: $LOG_FILE"
+echo "Start time: $(date)"
+echo ""
 
 # Backup existing configs
 if [[ -d "$HOME/.config" ]]; then
@@ -98,8 +105,11 @@ fi
 echo ""
 echo "=== Setup complete! ==="
 echo "Backup saved to: $BACKUP_DIR"
+echo "Log saved to: $LOG_FILE"
 echo ""
 echo "Next steps:"
 echo "  1. Review configs in ~/.config"
 echo "  2. Restart your shell: exec \$SHELL"
 echo "  3. If anything broke, restore from: $BACKUP_DIR"
+echo ""
+echo "End time: $(date)"
