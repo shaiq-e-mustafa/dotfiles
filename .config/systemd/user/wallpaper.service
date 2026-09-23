@@ -1,0 +1,6 @@
+[Unit]
+Description=Random wallpaper cycler
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/random-wallpaper.sh

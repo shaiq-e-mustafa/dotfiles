@@ -1,0 +1,8 @@
+{"timestamp":1043346,"category":"link.handling","name":"open_from_external_app","extra":{"glean_timestamp":"1790161409457","next_to_active_tab":"false"}}
+{"timestamp":1049856,"category":"profiles.default","name":"updated","extra":{"glean_timestamp":"1790161415967"}}
+{"timestamp":1051793,"category":"profiles.default","name":"updated","extra":{"glean_timestamp":"1790161417904"}}
+{"timestamp":1059120,"category":"profiles.default","name":"updated","extra":{"glean_timestamp":"1790161425231"}}
+{"timestamp":1070812,"category":"tab","name":"interaction","extra":{"source":"keyboard","glean_timestamp":"1790161436923","layout":"horizontal","tab_count":"1","action":"close"}}
+{"timestamp":1162741,"category":"profiles.default","name":"updated","extra":{"glean_timestamp":"1790161528852"}}
+{"timestamp":1163046,"category":"tab","name":"interaction","extra":{"layout":"horizontal","tab_count":"1","source":"tab_strip","action":"activate","glean_timestamp":"1790161529157"}}
+{"timestamp":1169244,"category":"profiles.default","name":"updated","extra":{"glean_timestamp":"1790161535355"}}

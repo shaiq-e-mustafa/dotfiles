@@ -1,0 +1,100 @@
+@import "colors.scss";
+
+* {
+  all: unset;
+  font-family: "JetBrainsMono Nerd Font";
+}
+
+.bar {
+  background-color: transparent;
+  padding: 4px 10px;
+}
+
+.bar-side{
+ min-width: 180px;
+}
+
+eventbox {
+  border-radius: 12px;
+
+}
+
+/* ===== Workspaces pill ===== */
+.workspaces {
+  background-color: $surface_container;
+  border-radius: 12px;
+  padding: 3px 6px;
+  margin: 0 6px;
+}
+
+.ws-slot {
+  min-width: 24px;
+}
+
+.ws-num-inactive, .ws-num-active {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.ws-num-inactive {
+  color: $outline;
+}
+
+.ws-num-active {
+  color: $primary;
+}
+
+.ws-indicator {
+  min-height: 3px;
+  min-width: 24px;
+  margin-left: 4px;
+  border-radius: 2px;
+  background-color: $primary;
+  transition: margin-left 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ===== Right-side stats: one shared pill, not four separate boxes ===== */
+.right-stats-box {
+  background-color: $surface_container;
+  border-radius: 16px;
+  padding: 4px 14px;
+  margin: 0 6px;
+  transition: opacity 250ms ease-in-out;
+}
+neo
+.stat {
+  color: $on_surface;
+  padding: 0 8px;
+  font-size: 13px;
+}
+
+/* Give volume/brightness their own subtle rounded hover container */
+
+scale trough {
+6;9usudo pacman -S fastfetch min-height: 6px;
+  min-width: 60px;
+  border-radius: 4px;
+  background-color: $surface;
+  margin: 4px 0;
+}
+
+.volbar trough highlight, .bribar trough highlight {
+  background-color: $primary;
+  border-radius: 4px;
+}
+.stat-value {
+  color: $on_surface;
+  padding: 0 4px;
+  font-size: 12px;
+}
+
+.visualizer {
+  min-width: 100px;
+}
+
+.cava-bar {
+  min-width: 3px;
+  background-color: $primary;
+  border-radius: 2px;
+  transition: min-height 80ms ease-out;
+}

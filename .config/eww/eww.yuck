@@ -1,0 +1,110 @@
+;; ===== Data sources =====
+(deflisten workspaces_json :initial "[]"
+  "~/.config/eww/scripts/workspaces.sh")
+(deflisten cava_bars :initial "[0,0,0,0,0,0,0,0,0,0,0,0]"
+  "~/.config/eww/scripts/cava.sh")
+(defpoll battery_icon :interval "10s" "~/.config/eww/scripts/battery.sh icon")
+(defpoll brightness_icon :interval "1s" "~/.config/eww/scripts/brightness-icon.sh")
+(defpoll battery_pct :interval "10s" "~/.config/eww/scripts/battery.sh")
+(defpoll wifi_icon :interval "5s" "~/.config/eww/scripts/wifi.sh icon")
+(defpoll wifi_status :interval "5s" "~/.config/eww/scripts/wifi.sh status")
+(defpoll current_volume :interval "1s" "~/.config/eww/scripts/volume.sh")
+(defpoll volume_icon :interval "1s" "~/.config/eww/scripts/volume-icon.sh")
+(defpoll current_brightness :interval "1s" "~/.config/eww/scripts/brightness.sh")
+(defpoll clock_time :interval "1s" "date '+%H:%M'")
+(defpoll shutdown_icon :interval "1h" "~/.config/eww/scripts/shutdown-icon.sh")
+(defvar vol_hover false)
+(defvar bright_hover false)
+(defvar stats_hover false)
+;; ===== Left: workspaces =====
+(defwidget workspaces []
+  (box :class "workspaces" :orientation "v" :space-evenly false :halign "start"
+    (box :orientation "h" :space-evenly false
+      (for workspace in {workspaces_json.list}
+        (box :class "ws-slot" :halign "center"
+          (button :class {workspace.active ? "ws-num-active" : "ws-num-inactive"}
+                  :onclick "hyprctl dispatch workspace ${workspace.id}"
+            "${workspace.id}"))))
+    (box :class "ws-indicator"
+         :halign "start"
+         :style "margin-left: ${workspaces_json.activeIndex * 24}px;")))
+
+;; ===== Right: stats =====
+(defwidget battery []
+  (label :class "stat" :text "${battery_icon} ${battery_pct}%" :tooltip "Battery: ${battery_pct}%"))
+
+(defwidget wifi []
+  (label :class "stat" :text "${wifi_icon}" :tooltip wifi_status))
+
+(defwidget volume []
+  (eventbox :onhover "eww update vol_hover=true"
+            :onhoverlost "eww update vol_hover=false"
+    (box :orientation "h" :space-evenly false
+      (revealer :transition "slideleft" :reveal vol_hover :duration "300ms"
+        (scale :class "volbar" :value current_volume :min 0 :max 101
+               :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%"))
+      (revealer :transition "slideleft" :reveal vol_hover :duration "300ms"
+        (label :class "stat-value" :text "${current_volume}%"))
+      (label :class "stat" :text "${volume_icon}"))))
+
+(defwidget clock []
+ (label :class "stat" :text "${clock_time}"))
+
+(defwidget shutdown []
+  (button :class "stat" :tooltip "Shut down"
+    :onclick "wofi --show dmenu -p 'Shut down?' <<< $'Yes\\nNo' | grep -q Yes && systemctl poweroff"
+    "${shutdown_icon}"))
+
+(defwidget brightness []
+  (eventbox :onhover "eww update bright_hover=true"
+            :onhoverlost "eww update bright_hover=false"
+    (box :orientation "h" :space-evenly false
+      (revealer :transition "slideleft" :reveal bright_hover :duration "300ms"
+        (scale :class "bribar" :value current_brightness :min 0 :max 100
+               :onchange "brightnessctl -d intel_backlight set {}%"))
+      (revealer :transition "slideleft" :reveal bright_hover :duration "300ms"
+        (label :class "stat-value" :text "${current_brightness}%"))
+      (label :class "stat" :text "${brightness_icon}"))))
+
+(defwidget right-stats []
+  (eventbox :onhover "eww update stats_hover=true"
+            :onhoverlost "eww update stats_hover=false"
+    (box :class "right-stats-box"
+         :orientation "h" :space-evenly false :halign "end" :spacing 4
+         :style "opacity: ${stats_hover ? 1.0 : 0.7};"
+      (wifi)
+      (battery)
+      (volume)
+      (brightness)
+      (clock)
+      (shutdown)
+      )))
+
+;; ===== Cava Visualizer =====
+(defwidget visualizer []
+  (box :class "visualizer" :orientation "h" :space-evenly true :valign "end" :spacing 2
+    (for bar in cava_bars
+      (box :class "cava-bar" :valign "end"
+           :style "min-height: ${bar * 0.19 + 2}px;"))))
+
+;; ===== Bar assembly =====
+(defwidget bar-content []
+  (box :class "bar" :orientation "h" :space-evenly false
+    (box :class "bar-side" :halign "start"
+      (workspaces))
+    (box :hexpand true :halign "center"
+      (visualizer))
+    (box :class "bar-side" :halign "end"
+      (right-stats))))
+
+;; ===== Window =====
+(defwindow bar
+  :monitor 0
+  :geometry (geometry :x "0%"
+                       :y "0%"
+                       :width "100%"
+                       :height "32px"
+                       :anchor "top center")
+  :stacking "fg"
+  :exclusive true
+  (bar-content))

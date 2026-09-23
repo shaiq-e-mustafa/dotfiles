@@ -1,0 +1,6 @@
+[Default Applications]
+video/mp4=firefox.desktop
+x-scheme-handler/claude-cli=claude-code-url-handler.desktop
+
+[Added Associations]
+video/mp4=firefox.desktop;

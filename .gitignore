@@ -1,0 +1,17 @@
+# System
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Local overrides (useful for machine-specific configs)
+local/
+*.local
+
+# Sensitive data (if any slips in)
+.ssh/
+.gnupg/
+
+# Firefox cache and storage
+.config/mozilla/firefox/*/storage/
+.config/mozilla/firefox/*/cache*/
