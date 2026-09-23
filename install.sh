@@ -43,6 +43,10 @@ for file in "$REPO_DIR"/home/.*; do
 
     if [[ -L "$target" ]]; then
         rm "$target"
+    elif [[ -f "$target" ]]; then
+        echo "  ⚠ File already exists: $filename (backing up)"
+        cp "$target" "$target.backup.$(date +%s)"
+        rm "$target"
     fi
 
     ln -s "$file" "$target"
