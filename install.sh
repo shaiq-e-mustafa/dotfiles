@@ -66,13 +66,25 @@ if [[ -f "$REPO_DIR/packages.txt" ]]; then
 
     # Ensure yay is installed
     if ! command -v yay &>/dev/null; then
-        echo "yay not found. Installing yay..."
+        echo "yay not found. Installing build dependencies..."
+        sudo pacman -S --noconfirm base-devel git || true
+
+        echo "Installing yay from AUR..."
         cd /tmp
-        git clone https://aur.archlinux.org/yay.git
-        cd yay
-        makepkg -si --noconfirm
-        cd "$REPO_DIR"
-        echo "✓ yay installed"
+        rm -rf yay 2>/dev/null || true
+        if git clone https://aur.archlinux.org/yay.git && cd yay; then
+            if makepkg -si --noconfirm; then
+                cd "$REPO_DIR"
+                echo "✓ yay installed"
+            else
+                echo "⚠ yay build failed, falling back to pacman"
+                cd "$REPO_DIR"
+                USE_PACMAN=1
+            fi
+        else
+            echo "⚠ Failed to clone yay, falling back to pacman"
+            USE_PACMAN=1
+        fi
     fi
 
     # Extract package names (first column from pacman -Q output)
@@ -88,13 +100,24 @@ if [[ -f "$REPO_DIR/packages.txt" ]]; then
 
     if [[ ${#missing_list[@]} -gt 0 ]]; then
         echo "Found ${#missing_list[@]} missing packages. Installing..."
-        # Install in batches to avoid command line length limits
-        batch_size=50
-        for ((i=0; i<${#missing_list[@]}; i+=batch_size)); do
-            batch=("${missing_list[@]:$i:$batch_size}")
-            yay -S --noconfirm "${batch[@]}"
-        done
-        echo "✓ Packages installed"
+
+        # Use yay if available, otherwise fallback to pacman
+        if command -v yay &>/dev/null && [[ "${USE_PACMAN:-0}" != "1" ]]; then
+            echo "Using yay for installation..."
+            batch_size=50
+            for ((i=0; i<${#missing_list[@]}; i+=batch_size)); do
+                batch=("${missing_list[@]:$i:$batch_size}")
+                yay -S --noconfirm "${batch[@]}" || echo "⚠ Some packages failed to install"
+            done
+        else
+            echo "Using pacman for installation..."
+            batch_size=50
+            for ((i=0; i<${#missing_list[@]}; i+=batch_size)); do
+                batch=("${missing_list[@]:$i:$batch_size}")
+                sudo pacman -S --noconfirm "${batch[@]}" || echo "⚠ Some packages failed to install"
+            done
+        fi
+        echo "✓ Package installation completed"
     else
         echo "✓ All packages already installed"
     fi
